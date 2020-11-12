@@ -1,0 +1,1 @@
+enum StateEventType { Save, Reset }

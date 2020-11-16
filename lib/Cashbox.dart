@@ -64,9 +64,9 @@ class CashboxState extends State<Cashbox> {
   }
 
   @override
-  void dispose() {
+  void deactivate() {
     stopTimer();
-    super.dispose();
+    super.deactivate();
   }
 
   void onTick(Timer timer) {

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:core';
 
+import 'package:event/event.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:cashboxregister/MiddleBar.dart';
@@ -40,6 +41,23 @@ class LoggerState extends State<Logger> {
       text += message + '\n';
     });
     return true;
+  }
+
+  void saveState(EventArgs args) {
+    print("Loggeer is saving state");
+  }
+
+  @override
+  void didChangeDependencies(){
+    super.didChangeDependencies();
+
+    Provider.of<EventProvider>(context, listen: false).saveEvent.subscribe(saveState);
+  }
+
+  @override
+  void deactivate(){
+    super.deactivate();
+    Provider.of<EventProvider>(context, listen: false).saveEvent.unsubscribe(saveState);
   }
 
   @override

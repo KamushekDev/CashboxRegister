@@ -1,12 +1,11 @@
 import 'package:event/event.dart';
-import 'package:cashboxregister/Models/StateEvent.dart';
 
 class EventProvider {
-  final stateEvent = Event<StateEvent>();
+  final saveEvent = Event();
 
   EventProvider() {
-    stateEvent.subscribe((args) {
-      print('Event: ${args.type}');
+    saveEvent.subscribe((args) {
+      print('Save event was triggered.');
     });
   }
 }

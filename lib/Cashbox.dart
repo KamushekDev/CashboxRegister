@@ -63,6 +63,12 @@ class CashboxState extends State<Cashbox> {
     startTimer();
   }
 
+  @override
+  void dispose() {
+    stopTimer();
+    super.dispose();
+  }
+
   void onTick(Timer timer) {
     setState(() {
       elapsedSeconds = (stopwatch.elapsedMilliseconds / 1000).truncate();

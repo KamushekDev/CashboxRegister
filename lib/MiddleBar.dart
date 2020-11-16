@@ -1,14 +1,12 @@
 import 'dart:core';
 
+import 'package:cashboxregister/Models/ResetNotification.dart';
 import 'package:flutter/material.dart';
 import 'package:cashboxregister/Models/EventProvider.dart';
 import 'package:cashboxregister/Models/LogNotification.dart';
 import 'package:cashboxregister/Models/NotificationType.dart';
 
 import 'package:event/event.dart';
-import 'package:cashboxregister/Models/StateEvent.dart';
-import 'package:cashboxregister/Models/StateEventType.dart';
-import 'file:///C:/Users/Kamushek/Source/Repos/CashboxRegister/cashboxregister/lib/main.dart';
 import 'package:provider/provider.dart';
 
 class MiddleBar extends StatefulWidget {
@@ -21,8 +19,6 @@ class MiddleBar extends StatefulWidget {
 class MiddleBarState extends State<MiddleBar> {
   int inStoreCustomers = 0;
   int allCustomers = 0;
-
-  EventProvider eventProvider;
 
   void addCustomer() {
     LogNotification(NotificationType.shopCustomer, customerEntered: true)
@@ -42,20 +38,16 @@ class MiddleBarState extends State<MiddleBar> {
   }
 
   void restart() {
-    eventProvider.stateEvent.broadcast(StateEvent(StateEventType.Reset));
+    //todo: reset
+    ResetNotification().dispatch(context);
   }
 
   void save() {
-    eventProvider.stateEvent.broadcast(StateEvent(StateEventType.Save));
+    Provider.of<EventProvider>(context, listen: false).saveEvent.broadcast();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (eventProvider == null)
-      setState(() {
-        eventProvider = Provider.of<EventProvider>(context);
-      });
-
     return Row(
       children: [
         Padding(

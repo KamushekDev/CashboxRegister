@@ -18,6 +18,11 @@ class FileStorage {
     return File('$path/$name.txt');
   }
 
+  Future<File> reset() async {
+    final file = await _localFile;
+    return file.writeAsString("");
+  }
+
   Future<File> write(String text) async {
     final file = await _localFile;
     return file.writeAsString(text);

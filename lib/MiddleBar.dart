@@ -1,6 +1,5 @@
 import 'dart:core';
 
-import 'package:cashboxregister/Models/ResetNotification.dart';
 import 'package:flutter/material.dart';
 import 'package:cashboxregister/Models/EventProvider.dart';
 import 'package:cashboxregister/Models/LogNotification.dart';
@@ -37,9 +36,14 @@ class MiddleBarState extends State<MiddleBar> {
     });
   }
 
+  void hardReset() {
+    Provider.of<EventProvider>(context, listen: false)
+        .hardResetEvent
+        .broadcast();
+  }
+
   void restart() {
-    //todo: reset
-    ResetNotification().dispatch(context);
+    Provider.of<EventProvider>(context, listen: false).resetEvent.broadcast();
   }
 
   void save() {
@@ -52,17 +56,20 @@ class MiddleBarState extends State<MiddleBar> {
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10.0),
-          child: Material(
-            shape: CircleBorder(),
-            clipBehavior: Clip.antiAlias,
-            color: Colors.black26,
-            child: IconButton(
-                icon: Icon(
-                  Icons.autorenew_outlined,
-                  color: Colors.red,
-                ),
-                onPressed: restart),
-            //todo add action
+          child: GestureDetector(
+            onLongPress: hardReset,
+            child: Material(
+              shape: CircleBorder(),
+              clipBehavior: Clip.antiAlias,
+              color: Colors.black26,
+              child: IconButton(
+                  icon: Icon(
+                    Icons.autorenew_outlined,
+                    color: Colors.red,
+                  ),
+                  onPressed: restart),
+              //todo add action
+            ),
           ),
         ),
         Material(

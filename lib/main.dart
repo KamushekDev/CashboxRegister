@@ -3,7 +3,6 @@ import 'dart:io';
 import 'dart:core';
 
 import 'package:cashboxregister/Logger.dart';
-import 'package:cashboxregister/Models/ResetNotification.dart';
 import 'package:event/event.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -45,34 +44,46 @@ class _CashboxRegisterState extends State<CashboxRegister> {
 
   _CashboxRegisterState(this.numberOfCashboxes);
 
-  bool onReset(Notification notification) {
-    print("reset event");
+  void onReset(EventArgs args) {
     setState(() {
       currentKey++;
     });
-    return true;
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    Provider.of<EventProvider>(context, listen: false)
+        .resetEvent
+        .subscribe(onReset);
+  }
+
+  @override
+  void deactivate() {
+    super.deactivate();
+    Provider.of<EventProvider>(context, listen: false)
+        .resetEvent
+        .unsubscribe(onReset);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(title)),
-      body: NotificationListener<ResetNotification>(
-        onNotification: onReset,
-        child: Logger(
-          key: ValueKey<int>(currentKey),
-          child: Column(
-            children: [
-              MiddleBar(),
-              Row(
-                children: Iterable.generate(numberOfCashboxes)
-                    .map((i) => Cashbox(i + 1))
-                    .cast<Cashbox>()
-                    .toList(),
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              ),
-            ],
-          ),
+      body: Logger(
+        key: ValueKey<int>(currentKey),
+        child: Column(
+          children: [
+            MiddleBar(),
+            Row(
+              children: Iterable.generate(numberOfCashboxes)
+                  .map((i) => Cashbox(i + 1))
+                  .cast<Cashbox>()
+                  .toList(),
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            ),
+          ],
         ),
       ),
     );

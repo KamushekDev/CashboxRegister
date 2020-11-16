@@ -46,8 +46,14 @@ class LoggerState extends State<Logger> {
   }
 
   void saveState(EventArgs args) {
-    print("Loggeer is saving state");
     storage.write(text);
+  }
+
+  void resetState(EventArgs args) {
+    storage.reset();
+    setState(() {
+      text = "";
+    });
   }
 
   @override
@@ -65,6 +71,9 @@ class LoggerState extends State<Logger> {
     Provider.of<EventProvider>(context, listen: false)
         .saveEvent
         .subscribe(saveState);
+    Provider.of<EventProvider>(context, listen: false)
+        .hardResetEvent
+        .subscribe(resetState);
   }
 
   @override
@@ -73,6 +82,10 @@ class LoggerState extends State<Logger> {
     Provider.of<EventProvider>(context, listen: false)
         .saveEvent
         .unsubscribe(saveState);
+
+    Provider.of<EventProvider>(context, listen: false)
+        .hardResetEvent
+        .unsubscribe(resetState);
   }
 
   @override
@@ -91,7 +104,7 @@ class LoggerState extends State<Logger> {
     );
     if (controller.hasClients)
       controller.animateTo(controller.position.maxScrollExtent,
-          duration: Duration(milliseconds: 400), curve: Curves.decelerate);
+          duration: Duration(milliseconds: 200), curve: Curves.decelerate);
     return listener;
   }
 }

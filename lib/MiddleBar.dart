@@ -1,5 +1,6 @@
 import 'dart:core';
 
+import 'package:cashboxregister/Models/FileStorage.dart';
 import 'package:flutter/material.dart';
 import 'package:cashboxregister/Models/EventProvider.dart';
 import 'package:cashboxregister/Models/LogNotification.dart';
@@ -16,8 +17,43 @@ class MiddleBar extends StatefulWidget {
 }
 
 class MiddleBarState extends State<MiddleBar> {
+  final FileStorage storage = FileStorage("MiddleBar");
+
   int inStoreCustomers = 0;
   int allCustomers = 0;
+
+  void parseAndSetState(String value) {
+    if (value == "") {
+      setState(() {
+        inStoreCustomers = 0;
+        allCustomers = 0;
+      });
+    } else {
+      var values = value.split(";");
+      setState(() {
+        inStoreCustomers = int.tryParse(values[0]) ?? 0;
+        allCustomers = int.tryParse(values[1]) ?? 0;
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    storage.read().then(parseAndSetState);
+  }
+
+  void saveState(EventArgs args) {
+    storage.write("$inStoreCustomers;$allCustomers");
+  }
+
+  void resetState(EventArgs args) {
+    storage.reset();
+    setState(() {
+      inStoreCustomers = 0;
+      allCustomers = 0;
+    });
+  }
 
   void addCustomer() {
     LogNotification(NotificationType.shopCustomer, customerEntered: true)
@@ -34,6 +70,30 @@ class MiddleBarState extends State<MiddleBar> {
     setState(() {
       inStoreCustomers--;
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    Provider.of<EventProvider>(context, listen: false)
+        .saveEvent
+        .subscribe(saveState);
+    Provider.of<EventProvider>(context, listen: false)
+        .hardResetEvent
+        .subscribe(resetState);
+  }
+
+  @override
+  void deactivate() {
+    super.deactivate();
+    Provider.of<EventProvider>(context, listen: false)
+        .saveEvent
+        .unsubscribe(saveState);
+
+    Provider.of<EventProvider>(context, listen: false)
+        .hardResetEvent
+        .unsubscribe(resetState);
   }
 
   void hardReset() {

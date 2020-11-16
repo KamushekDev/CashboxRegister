@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:core';
 
+import 'package:cashboxregister/Models/FileStorage.dart';
 import 'package:event/event.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -28,6 +29,7 @@ class Logger extends StatefulWidget {
 class LoggerState extends State<Logger> {
   final Widget child;
   final ScrollController controller = ScrollController();
+  final FileStorage storage = FileStorage("Logger");
 
   EventProvider eventProvider;
   String text = '';
@@ -45,19 +47,32 @@ class LoggerState extends State<Logger> {
 
   void saveState(EventArgs args) {
     print("Loggeer is saving state");
+    storage.write(text);
   }
 
   @override
-  void didChangeDependencies(){
+  void initState() {
+    super.initState();
+    storage.read().then((value) => {
+          setState(() => {text = value})
+        });
+  }
+
+  @override
+  void didChangeDependencies() {
     super.didChangeDependencies();
 
-    Provider.of<EventProvider>(context, listen: false).saveEvent.subscribe(saveState);
+    Provider.of<EventProvider>(context, listen: false)
+        .saveEvent
+        .subscribe(saveState);
   }
 
   @override
-  void deactivate(){
+  void deactivate() {
     super.deactivate();
-    Provider.of<EventProvider>(context, listen: false).saveEvent.unsubscribe(saveState);
+    Provider.of<EventProvider>(context, listen: false)
+        .saveEvent
+        .unsubscribe(saveState);
   }
 
   @override

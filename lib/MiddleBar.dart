@@ -128,7 +128,6 @@ class MiddleBarState extends State<MiddleBar> {
                     color: Colors.red,
                   ),
                   onPressed: restart),
-              //todo add action
             ),
           ),
         ),
@@ -142,7 +141,6 @@ class MiddleBarState extends State<MiddleBar> {
                 color: Colors.black38,
               ),
               onPressed: save),
-          //todo add action
         ),
         Expanded(
           child: ButtonBar(

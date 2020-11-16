@@ -106,12 +106,10 @@ class CashboxState extends State<Cashbox> {
 
       while (customers.isNotEmpty) {
         popCustomer();
-        //todo it doesn't work
       }
     }
 
     setState(() {
-      //todo can't just disable not empty cashbox
       enabled = !enabled;
     });
     LogNotification(NotificationType.cashboxAvailability,

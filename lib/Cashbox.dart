@@ -1,5 +1,9 @@
 import 'dart:collection';
+import 'dart:convert';
 
+import 'package:cashboxregister/Models/EventProvider.dart';
+import 'package:cashboxregister/Models/FileStorage.dart';
+import 'package:event/event.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'dart:core';
@@ -9,20 +13,101 @@ import 'package:flutter/services.dart';
 import 'package:cashboxregister/Models/LogNotification.dart';
 import 'package:cashboxregister/Models/Customer.dart';
 import 'package:cashboxregister/Models/NotificationType.dart';
+import 'package:provider/provider.dart';
 
 class CashboxState extends State<Cashbox> {
   bool enabled = false;
   Widget alert;
-  int currentCustomerNumber = 1;
+  int currentCustomersNumber = 1;
   DateTime lastServe;
   int elapsedSeconds = 0;
+  int elapsedSecondsStart = 0;
   Timer timer;
 
   final int number;
   final Stopwatch stopwatch = Stopwatch();
   final Queue<Customer> customers = Queue();
+  final FileStorage storage;
 
-  CashboxState(this.number) {
+  void parseAndSetState(String value) {
+    if (value != "") {
+      var values = value.split(";");
+      setState(() {
+        enabled = values[0].toLowerCase().contains("true");
+        currentCustomersNumber = int.parse(values[1]);
+        lastServe = DateTime.tryParse(values[2])?.toLocal();
+        elapsedSeconds = elapsedSecondsStart = int.parse(values[3]);
+        var isTimerEnabled = values[4].toLowerCase().contains("true");
+        if (isTimerEnabled) startTimer();
+        for (int i = 5; i < values.length; i++) {
+          var json = jsonDecode(values[i]);
+          customers.add(Customer.fromJson(json));
+        }
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    storage.read().then(parseAndSetState);
+  }
+
+  void saveState(EventArgs args) {
+    var result =
+        "$enabled;$currentCustomersNumber;${lastServe?.toUtc().toString()};$elapsedSeconds;${timer?.isActive ?? false}";
+
+    var list = customers.toList();
+
+    try {
+      list.forEach((element) {
+        result += ";${jsonEncode(element)}";
+      });
+    } catch (ex) {
+      print(ex.toString());
+    }
+    storage.write(result);
+  }
+
+  void resetState(EventArgs args) {
+    storage.reset();
+    setState(() {
+      enabled = false;
+      currentCustomersNumber = 1;
+      lastServe = null;
+      elapsedSeconds = 0;
+      elapsedSecondsStart = 0;
+      customers.clear();
+      if (timer?.isActive == true) stopTimer();
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    Provider.of<EventProvider>(context, listen: false)
+        .saveEvent
+        .subscribe(saveState);
+    Provider.of<EventProvider>(context, listen: false)
+        .hardResetEvent
+        .subscribe(resetState);
+  }
+
+  @override
+  void deactivate() {
+    stopTimer();
+    Provider.of<EventProvider>(context, listen: false)
+        .saveEvent
+        .unsubscribe(saveState);
+
+    Provider.of<EventProvider>(context, listen: false)
+        .hardResetEvent
+        .unsubscribe(resetState);
+    super.deactivate();
+  }
+
+  CashboxState(this.number) : storage = FileStorage("Cashbox$number") {
     alert = AlertDialog(
       title: Text("Касса не работает"),
       content: Text('Включить кассу $number'),
@@ -56,6 +141,7 @@ class CashboxState extends State<Cashbox> {
     stopwatch.reset();
     timer = null;
     elapsedSeconds = 0;
+    elapsedSecondsStart = 0;
   }
 
   void resetTimer() {
@@ -63,15 +149,10 @@ class CashboxState extends State<Cashbox> {
     startTimer();
   }
 
-  @override
-  void deactivate() {
-    stopTimer();
-    super.deactivate();
-  }
-
   void onTick(Timer timer) {
     setState(() {
-      elapsedSeconds = (stopwatch.elapsedMilliseconds / 1000).truncate();
+      elapsedSeconds = elapsedSecondsStart +
+          (stopwatch.elapsedMilliseconds / 1000).truncate();
     });
   }
 
@@ -140,8 +221,8 @@ class CashboxState extends State<Cashbox> {
         lastServe = entryDate;
         startTimer();
       }
-      customers.add(Customer(currentCustomerNumber, entryDate));
-      currentCustomerNumber++;
+      customers.add(Customer(currentCustomersNumber, entryDate));
+      currentCustomersNumber++;
     });
   }
 
@@ -222,7 +303,7 @@ class CashboxState extends State<Cashbox> {
             ),
           ),
         ),
-        Text('$currentCustomerNumber'),
+        Text('$currentCustomersNumber'),
         IconButton(
           padding: EdgeInsets.symmetric(vertical: 5),
           iconSize: size,

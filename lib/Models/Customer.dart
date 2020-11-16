@@ -6,6 +6,19 @@ class Customer {
       : entryTime = old.entryTime,
         number = old.number;
 
+  Customer.fromJson(Map<String, dynamic> json)
+      : exitTime = DateTime.tryParse(json["exitTime"])?.toLocal(),
+        servingTime = json["servingTime"],
+        entryTime = DateTime.tryParse(json["entryTime"])?.toLocal(),
+        number = json["number"];
+
+  Map<String, dynamic> toJson() => {
+        'exitTime': exitTime?.toUtc().toString(),
+        'servingTime': servingTime,
+        'entryTime': entryTime?.toUtc().toString(),
+        'number': number,
+      };
+
   Duration get waitTime => exitTime.difference(entryTime);
 
   final DateTime exitTime;

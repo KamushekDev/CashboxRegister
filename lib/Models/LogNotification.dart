@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:core';
 import 'package:flutter/material.dart';
 
@@ -30,6 +31,15 @@ class LogNotification extends Notification {
     //todo specify the exception type & message
     throw Exception("argument exception");
   }
+
+  Map<String, dynamic> toJson() => {
+        'type': type.toString(),
+        'cashboxNumber': cashboxNumber,
+        'cashboxBecomesActive': cashboxBecomesActive,
+        'customerEntered': customerEntered,
+        'customer': jsonEncode(customer),
+        'time': time.toString(),
+      };
 
   LogNotification(
     this.type, {

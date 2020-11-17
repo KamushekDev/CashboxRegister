@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:core';
 
@@ -37,12 +38,18 @@ class LoggerState extends State<Logger> {
   LoggerState(this.child);
 
   bool onLog(LogNotification notification) {
-    String message = notification.toString();
-    print(message);
-    setState(() {
-      text += message + '\n';
-    });
-    return true;
+    try {
+      String message = jsonEncode(notification);
+      //print(message);
+      setState(() {
+        text += message + ',';
+      });
+      return true;
+    } catch (ex) {
+      print(ex.toString());
+      throw ex;
+      return false;
+    }
   }
 
   void saveState(EventArgs args) {

@@ -65,6 +65,7 @@ class CashboxState extends State<Cashbox> {
       });
     } catch (ex) {
       print(ex.toString());
+      throw ex;
     }
     storage.write(result);
   }

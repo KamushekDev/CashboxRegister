@@ -1,21 +1,14 @@
-import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 import 'dart:core';
 
 import 'package:cashboxregister/Models/FileStorage.dart';
 import 'package:event/event.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:cashboxregister/MiddleBar.dart';
 import 'package:cashboxregister/Models/EventProvider.dart';
 import 'package:cashboxregister/Models/LogNotification.dart';
-import 'package:cashboxregister/Models/NotificationType.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 
-import 'dart:async';
-import 'dart:io';
 import 'dart:core';
 
 class Logger extends StatefulWidget {

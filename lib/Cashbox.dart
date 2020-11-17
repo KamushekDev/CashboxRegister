@@ -9,7 +9,6 @@ import 'package:flutter/material.dart';
 import 'dart:core';
 import 'dart:async';
 
-import 'package:flutter/services.dart';
 import 'package:cashboxregister/Models/LogNotification.dart';
 import 'package:cashboxregister/Models/Customer.dart';
 import 'package:cashboxregister/Models/NotificationType.dart';
